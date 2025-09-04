@@ -10,6 +10,9 @@ from torchvision.transforms.functional import to_pil_image
 from adetailer import PredictOutput
 from adetailer.common import create_mask_from_bbox
 
+import torch.serialization
+from ultralytics.nn.tasks import DetectionModel
+
 if TYPE_CHECKING:
     import torch
     from ultralytics import YOLO, YOLOWorld
@@ -23,6 +26,9 @@ def ultralytics_predict(
     classes: str = "",
 ) -> PredictOutput[float]:
     from ultralytics import YOLO
+
+    if not torch.serialization._is_safe_globals([DetectionModel]):
+        torch.serialization.add_safe_globals([DetectionModel])
 
     model = YOLO(model_path)
     apply_classes(model, model_path, classes)
